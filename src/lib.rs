@@ -81,13 +81,11 @@ impl fmt::Display for XSpanIdString {
     }
 }
 
-/// Very simple error type - just holds a description of the error. This is useful for human
-/// diagnosis and troubleshooting, but not for applications to parse. The justification for this
-/// is to deny applications visibility into the communication layer, forcing the application code
-/// to act solely on the logical responses that the API provides, promoting abstraction in the
-/// application code.
+/// Very simple error type - just holds a description of the error and an HTTP response code.
+/// This is useful for human diagnosis and troubleshooting, and allows client applications to
+/// respond appropriately to the HTTP error, such as retrying following a 503 Service Unavailable.
 #[derive(Clone, Debug)]
-pub struct ApiError(pub String);
+pub struct ApiError(pub String, pub hyper::StatusCode);
 
 impl fmt::Display for ApiError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -104,41 +102,22 @@ impl error::Error for ApiError {
 
 impl<'a> From<&'a str> for ApiError {
     fn from(e: &str) -> Self {
-        ApiError(e.to_string())
+        // Use InternalServerError when none is provided
+        ApiError(e.to_string(), hyper::StatusCode::InternalServerError)
     }
 }
 
 impl From<String> for ApiError {
     fn from(e: String) -> Self {
-        ApiError(e)
+        // Use InternalServerError when none is provided
+        ApiError(e, hyper::StatusCode::InternalServerError)
     }
 }
 
 #[cfg(feature = "serdejson")]
 impl From<serde_json::Error> for ApiError {
     fn from(e: serde_json::Error) -> Self {
-        ApiError(format!("Response body did not match the schema: {}", e))
-    }
-}
-
-/// An error with message and http response code. This is useful when the service should respond with a particular
-/// HTTP code. For example, returning 503 indicates that the client may retry the request.
-/// The message will be returned to the client in the response.
-#[derive(Clone, Debug)]
-pub struct ApiErrorWithCode {
-    message: String,
-    response_code: hyper::StatusCode,
-}
-
-impl fmt::Display for ApiErrorWithCode {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let debug: &fmt::Debug = self;
-        debug.fmt(f)
-    }
-}
-
-impl error::Error for ApiErrorWithCode {
-    fn description(&self) -> &str {
-        "Failed to produce a valid response."
+        ApiError(format!("Response body did not match the schema: {}", e),
+                 hyper::StatusCode::InternalServerError)
     }
 }
