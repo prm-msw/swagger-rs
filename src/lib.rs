@@ -120,3 +120,25 @@ impl From<serde_json::Error> for ApiError {
         ApiError(format!("Response body did not match the schema: {}", e))
     }
 }
+
+/// An error with message and http response code. This is useful when the service should respond with a particular
+/// HTTP code. For example, returning 503 indicates that the client may retry the request.
+/// The message will be returned to the client in the response.
+#[derive(Clone, Debug)]
+pub struct ApiErrorWithCode {
+    message: String,
+    response_code: hyper::StatusCode,
+}
+
+impl fmt::Display for ApiErrorWithCode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let debug: &fmt::Debug = self;
+        debug.fmt(f)
+    }
+}
+
+impl error::Error for ApiErrorWithCode {
+    fn description(&self) -> &str {
+        "Failed to produce a valid response."
+    }
+}
