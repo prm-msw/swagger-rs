@@ -84,6 +84,7 @@ impl fmt::Display for XSpanIdString {
 /// Very simple error type - just holds a description of the error and an HTTP response code.
 /// This is useful for human diagnosis and troubleshooting, and allows client applications to
 /// respond appropriately to the HTTP error, such as retrying following a 503 Service Unavailable.
+/// The response code will be sent to the client, but the specific error message will not.
 #[derive(Clone, Debug)]
 pub struct ApiError(pub String, pub hyper::StatusCode);
 
