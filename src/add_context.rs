@@ -15,9 +15,9 @@ pub struct AddContextNewService<T, C>
 where
     C: Default + Push<XSpanIdString>,
     T: hyper::server::NewService<
-        Request = (hyper::Request, C::Result),
-        Response = hyper::Response,
-        Error = hyper::Error,
+        Request = (Request, C::Result),
+        Response = Response,
+        Error = Error,
     >,
 {
     inner: T,
@@ -28,9 +28,9 @@ impl<T, C> AddContextNewService<T, C>
 where
     C: Default + Push<XSpanIdString>,
     T: hyper::server::NewService<
-        Request = (hyper::Request, C::Result),
-        Response = hyper::Response,
-        Error = hyper::Error,
+        Request = (Request, C::Result),
+        Response = Response,
+        Error = Error,
     >,
 {
     /// Create a new AddContextNewService struct wrapping a value
@@ -46,14 +46,14 @@ impl<T, C> hyper::server::NewService for AddContextNewService<T, C>
 where
     C: Default + Push<XSpanIdString>,
     T: hyper::server::NewService<
-        Request = (hyper::Request, C::Result),
-        Response = hyper::Response,
-        Error = hyper::Error,
+        Request = (Request, C::Result),
+        Response = Response,
+        Error = Error,
     >,
 {
-    type Request = hyper::Request;
-    type Response = hyper::Response;
-    type Error = hyper::Error;
+    type Request = Request;
+    type Response = Response;
+    type Error = Error;
     type Instance = AddContextService<T::Instance, C>;
 
     fn new_service(&self) -> Result<Self::Instance, io::Error> {
@@ -71,9 +71,9 @@ pub struct AddContextService<T, C>
 where
     C: Default + Push<XSpanIdString>,
     T: hyper::server::Service<
-        Request = (hyper::Request, C::Result),
-        Response = hyper::Response,
-        Error = hyper::Error,
+        Request = (Request, C::Result),
+        Response = Response,
+        Error = Error,
     >,
 {
     inner: T,
@@ -84,9 +84,9 @@ impl<T, C> AddContextService<T, C>
 where
     C: Default + Push<XSpanIdString>,
     T: hyper::server::Service<
-        Request = (hyper::Request, C::Result),
-        Response = hyper::Response,
-        Error = hyper::Error,
+        Request = (Request, C::Result),
+        Response = Response,
+        Error = Error,
     >,
 {
     /// Create a new AddContextService struct wrapping a value
@@ -102,14 +102,14 @@ impl<T, C> hyper::server::Service for AddContextService<T, C>
 where
     C: Default + Push<XSpanIdString>,
     T: hyper::server::Service<
-        Request = (hyper::Request, C::Result),
-        Response = hyper::Response,
-        Error = hyper::Error,
+        Request = (Request, C::Result),
+        Response = Response,
+        Error = Error,
     >,
 {
-    type Request = hyper::Request;
-    type Response = hyper::Response;
-    type Error = hyper::Error;
+    type Request = Request;
+    type Response = Response;
+    type Error = Error;
     type Future = T::Future;
 
     fn call(&self, req: Self::Request) -> Self::Future {
